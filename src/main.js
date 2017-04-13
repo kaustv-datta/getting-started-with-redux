@@ -1,4 +1,4 @@
-import { createStore , combineReducers } from 'redux'
+import { createStore } from 'redux'
 import { testAddTodo , testToggleTodo } from 'tests'
 
 const todo = (state, action) => {
@@ -50,23 +50,25 @@ const visibilityFilter = (
   }
 }
 
+const combineReducers = (reducers) => {
+  return (state = {}, action) => {
+    return Object.keys(reducers).reduce(
+      (nextSate, key) => {
+        nextSate[key] = reducers[key](
+          state[key],
+          action
+        );
+        return nextSate;
+      },
+      {}
+    );
+  };
+}
+
 const todoApp = combineReducers({
   todos,
   visibilityFilter
 });
-
-// const todoApp = (state = {}, action) => {
-//   return {
-//     todos: todos(
-//       state.todos,
-//       action
-//       ),
-//       visibilityFilter: visibilityFilter(
-//         state.visibilityFilter,
-//         action
-//       )
-//   };
-// }
 
 const store = createStore(todoApp);
 console.log(store.getState());
