@@ -1,60 +1,76 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import createStore from './store/createStore'
-import AppContainer from './containers/AppContainer'
+import { createStore , combineReducers } from 'redux'
+import { testAddTodo , testToggleTodo } from 'tests'
 
-// ========================================================
-// Store Instantiation
-// ========================================================
-const initialState = window.__INITIAL_STATE__
-const store = createStore(initialState)
+const todo = (state, action) => {
+  switch (action.type) {
+    case 'ADD_TODO':
+      return {
+        id: action.id,
+        text: action.text,
+        completed: false
+      };
+    case 'TOGGLE_TODO':
+      if (state.id !== action.id) {
+        return state;
+      }
 
-// ========================================================
-// Render Setup
-// ========================================================
-const MOUNT_NODE = document.getElementById('root')
+      return {
+        ...state, completed: !state.completed
+      };
+    default:
+      return state;
+  }
 
-let render = () => {
-  const routes = require('./routes/index').default(store)
-
-  ReactDOM.render(
-    <AppContainer store={store} routes={routes} />,
-    MOUNT_NODE
-  )
 }
 
-// This code is excluded from production bundle
-if (__DEV__) {
-  if (module.hot) {
-    // Development render functions
-    const renderApp = render
-    const renderError = (error) => {
-      const RedBox = require('redbox-react').default
+const todos = (state = [], action) => {
+  switch (action.type) {
+    case 'ADD_TODO':
+      return [
+        ...state,
+        todo(undefined, action)
+      ];
+    case 'TOGGLE_TODO':
+      return state.map(t => todo(t, action));
+    default:
+      return state;
+  }
 
-      ReactDOM.render(<RedBox error={error} />, MOUNT_NODE)
-    }
+}
 
-    // Wrap render in try/catch
-    render = () => {
-      try {
-        renderApp()
-      } catch (error) {
-        console.error(error)
-        renderError(error)
-      }
-    }
-
-    // Setup hot module replacement
-    module.hot.accept('./routes/index', () =>
-      setImmediate(() => {
-        ReactDOM.unmountComponentAtNode(MOUNT_NODE)
-        render()
-      })
-    )
+const visibilityFilter = (
+  state = 'SHOW_ALL',
+  action
+) => {
+  switch (action.type) {
+    case 'SET_VISIBILITY_FILTER':
+      return action.filter;
+    default:
+      return state;
   }
 }
 
-// ========================================================
-// Go!
-// ========================================================
-render()
+const todoApp = combineReducers({
+  todos,
+  visibilityFilter
+});
+
+// const todoApp = (state = {}, action) => {
+//   return {
+//     todos: todos(
+//       state.todos,
+//       action
+//       ),
+//       visibilityFilter: visibilityFilter(
+//         state.visibilityFilter,
+//         action
+//       )
+//   };
+// }
+
+const store = createStore(todoApp);
+console.log(store.getState());
+
+testAddTodo(todos);
+testToggleTodo(todos);
+console.log('All tests passed.');
