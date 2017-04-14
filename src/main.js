@@ -171,17 +171,31 @@ const TodoList = ({
     </ul>
   );
 
-const AddTodo = ({
-  onAddClick
-}) => {
+const AddTodo = () => {
   let input;
+
   return (
     <div>
       <input ref={(node) => {
         input = node;
-      }} />
+      }}
+        onKeyUp={(event) => {
+          if (event.key === 'Enter') {
+            store.dispatch({
+              type: 'ADD_TODO',
+              text: input.value,
+              id: nextTodoId++
+            });
+            input.value = '';
+          }
+        }}
+      />
       <button onClick={() => {
-        onAddClick(input.value);
+        store.dispatch({
+          type: 'ADD_TODO',
+          text: input.value,
+          id: nextTodoId++
+        });
         input.value = '';
       }}>
         Add Todo
@@ -204,28 +218,28 @@ const getVisibleTodos = (
   }
 }
 
-let nextTodoId = 0;
-const TodoApp = ({
-  todos,
-  visibilityFilter
-}) => (
-    <div>
-      <AddTodo
-        onAddClick={text =>
-          store.dispatch({
-            type: 'ADD_TODO',
-            text: text,
-            id: nextTodoId++
-          })
-        }
-      />
+class VisibleTodoList extends Component {
+  componentDidMount() {
+    this.unsubscribe = store.subscribe(() => {
+      this.forceUpdate();
+    });
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
+  render() {
+    const props = this.props;
+    const state = store.getState();
+
+    return (
       <TodoList
         todos={
           getVisibleTodos(
-            todos,
-            visibilityFilter
-          )
-        }
+            state.todos,
+            state.visibilityFilter
+          )}
         onTodoClick={id =>
           store.dispatch({
             type: 'TOGGLE_TODO',
@@ -233,19 +247,21 @@ const TodoApp = ({
           })
         }
       />
-      <Footer />
-    </div>
-  )
-
-
-const render = () => {
-  ReactDOM.render(
-    <TodoApp
-      {...store.getState() }
-    />,
-    document.getElementById('root')
-  );
+    );
+  }
 }
 
-store.subscribe(render);
-render();
+let nextTodoId = 0;
+const TodoApp = () => (
+  <div>
+    <AddTodo />
+    <VisibleTodoList />
+    <Footer />
+  </div>
+);
+
+
+ReactDOM.render(
+  <TodoApp />,
+  document.getElementById('root')
+);
