@@ -52,31 +52,12 @@ const visibilityFilter = (
   }
 }
 
-// const combineReducers = (reducers) => {
-//   return (state = {}, action) => {
-//     return Object.keys(reducers).reduce(
-//       (nextSate, key) => {
-//         nextSate[key] = reducers[key](
-//           state[key],
-//           action
-//         );
-//         return nextSate;
-//       },
-//       {}
-//     );
-//   };
-// }
-
 const todoApp = combineReducers({
   todos,
   visibilityFilter
 });
 
 const store = createStore(todoApp);
-
-// testAddTodo(todos);
-// testToggleTodo(todos);
-// console.log('All tests passed.');
 
 const { Component } = React;
 
@@ -102,6 +83,38 @@ const FilterLink = ({
     </a>
   );
 }
+
+const Todo = ({
+  onClick,
+  completed,
+  text
+}) => (
+  <li
+    onClick={onClick}
+    style={{
+      textDecoration:
+      completed ?
+        'line-through' :
+        'none'
+    }}>
+    {text}
+  </li>
+)
+
+const TodoList = ({
+  todos,
+  onTodoClick
+}) => (
+    <ul>
+      {todos.map(todo =>
+        <Todo
+          key={todo.id}
+          {...todo}
+          onClick={() => onTodoClick(todo.id)}
+        />
+      )}
+    </ul>
+  );
 
 const getVisibleTodos = (
   todos,
@@ -143,45 +156,33 @@ class TodoApp extends Component {
         }}>
           Add Todo
               </button>
-        <ul>
-          {visibleTodos.map(todo =>
-            <li key={todo.id}
-              onClick={() => {
-                store.dispatch(
-                  {
-                    type: 'TOGGLE_TODO',
-                    id: todo.id
-                  }
-                );
-              }}
-              style={{
-                textDecoration:
-                todo.completed ?
-                  'line-through' :
-                  'none'
-              }}>
-              {todo.text}
-            </li>
-          )}
-        </ul>
+        <TodoList
+          todos={visibleTodos}
+          onTodoClick={id =>
+            store.dispatch({
+              type: 'TOGGLE_TODO',
+              id: id
+            })
+          }
+        />
         <p>
           Show:
           {' '}
-          <FilterLink 
-          filter='SHOW_ALL'
-          currentFilter={visibilityFilter}>
+          <FilterLink
+            filter='SHOW_ALL'
+            currentFilter={visibilityFilter}>
             All
           </FilterLink>
           {' '}
-          <FilterLink 
-          filter='SHOW_ACTIVE'
-          currentFilter={visibilityFilter}>
+          <FilterLink
+            filter='SHOW_ACTIVE'
+            currentFilter={visibilityFilter}>
             Active
           </FilterLink>
           {' '}
-          <FilterLink 
-          filter='SHOW_COMPLETED'
-          currentFilter={visibilityFilter}>
+          <FilterLink
+            filter='SHOW_COMPLETED'
+            currentFilter={visibilityFilter}>
             Completed
           </FilterLink>
         </p>
