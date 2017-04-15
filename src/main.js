@@ -58,6 +58,31 @@ const todoApp = combineReducers({
   visibilityFilter
 });
 
+// ----  ACTION CREATORS ---- 
+let nextTodoId = 0;
+const addTodo = (text) => {
+  return {
+    type: 'ADD_TODO',
+    text,
+    id: nextTodoId++
+  };
+};
+
+const setVisibilityFilter = (filter) => {
+  return {
+    type: 'SET_VISIBILITY_FILTER',
+    filter
+  };
+};
+
+const toggleTodo = (id) => {
+  return {
+        type: 'TOGGLE_TODO',
+        id
+      };
+};
+// ---- ----
+
 const { Component } = React;
 
 const Link = ({
@@ -96,10 +121,9 @@ const mapDispatchToLinkProps = (
 ) => {
   return {
     onClick: () => {
-      dispatch({
-        type: 'SET_VISIBILITY_FILTER',
-        filter: ownProps.filter
-      });
+      dispatch(
+        setVisibilityFilter(ownProps.filter)
+      );
     }
   };
 }
@@ -196,7 +220,6 @@ const TodoList = ({
     </ul>
   );
 
-let nextTodoId = 0;
 let AddTodo = ({ dispatch }) => {
   let input;
 
@@ -207,21 +230,13 @@ let AddTodo = ({ dispatch }) => {
       }}
         onKeyUp={(event) => {
           if (event.key === 'Enter') {
-            dispatch({
-              type: 'ADD_TODO',
-              text: input.value,
-              id: nextTodoId++
-            });
+            dispatch(addTodo(input.value));
             input.value = '';
           }
         }}
       />
       <button onClick={() => {
-        dispatch({
-          type: 'ADD_TODO',
-          text: input.value,
-          id: nextTodoId++
-        });
+        dispatch(addTodo(input.value));
         input.value = '';
       }}>
         Add Todo
@@ -229,7 +244,7 @@ let AddTodo = ({ dispatch }) => {
     </div>
   );
 }
-AddTodo = connect()(AddTodo); // injects dispatch in 2nd arg
+AddTodo = connect()(AddTodo); // connect injects "dispatch"" in 2nd arg
 
 const getVisibleTodos = (
   todos,
@@ -256,10 +271,7 @@ const mapStateToTodoListProps = (state) => {
 const mapDispatchToTodoListProps = (dispatch) => {
   return {
     onTodoClick: (id) => {
-      dispatch({
-        type: 'TOGGLE_TODO',
-        id: id
-      })
+      dispatch(toggleTodo(id))
     }
   };
 }
