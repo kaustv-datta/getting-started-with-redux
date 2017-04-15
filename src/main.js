@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { createStore, combineReducers } from 'redux'
 import { testAddTodo, testToggleTodo } from 'tests'
-import { Provider , connect } from 'react-redux'
+import { Provider, connect } from 'react-redux'
 
 const todo = (state, action) => {
   switch (action.type) {
@@ -80,7 +80,35 @@ const Link = ({
   );
 }
 
-class FilterLink extends Component {
+const mapStateToLinkProps = (
+  state,
+  ownProps
+) => {
+  return {
+    active:
+    ownProps.filter ===
+    state.visibilityFilter
+  };
+}
+const mapDispatchToLinkProps = (
+  dispatch,
+  ownProps
+) => {
+  return {
+    onClick: () => {
+      dispatch({
+        type: 'SET_VISIBILITY_FILTER',
+        filter: ownProps.filter
+      });
+    }
+  };
+}
+const FilterLink = connect(
+  mapStateToLinkProps,
+  mapDispatchToLinkProps
+)(Link);
+
+/*class FilterLink extends Component {
   componentDidMount() {
     const { store } = this.context;
     this.unsubscribe = store.subscribe(() => {
@@ -100,22 +128,14 @@ class FilterLink extends Component {
     return (
       <Link
         active={
-          props.filter === state.visibilityFilter
+
         }
-        onClick={() => {
-          store.dispatch({
-            type: 'SET_VISIBILITY_FILTER',
-            filter: props.filter
-          });
-        }}>
+        onClick={}>
         {props.children}
       </Link>
     );
   }
-}
-FilterLink.contextTypes = {
-  store: React.PropTypes.object
-};
+}*/
 
 const Footer = () => {
 
