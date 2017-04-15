@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { createStore, combineReducers } from 'redux'
 import { testAddTodo, testToggleTodo } from 'tests'
-import { Provider } from 'react-redux'
+import { Provider , connect } from 'react-redux'
 
 const todo = (state, action) => {
   switch (action.type) {
@@ -226,7 +226,32 @@ const getVisibleTodos = (
   }
 }
 
-class VisibleTodoList extends Component {
+const mapStateToProps = (state) => {
+  return {
+    todos: getVisibleTodos(
+      state.todos,
+      state.visibilityFilter
+    )
+  };
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onTodoClick: (id) => {
+      dispatch({
+        type: 'TOGGLE_TODO',
+        id: id
+      })
+    }
+  };
+}
+
+const VisibleTodoList = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(TodoList);
+
+/*class VisibleTodoList extends Component {
   componentDidMount() {
     const { store } = this.context;
     this.unsubscribe = store.subscribe(() => {
@@ -246,15 +271,8 @@ class VisibleTodoList extends Component {
     return (
       <TodoList
         todos={
-          getVisibleTodos(
-            state.todos,
-            state.visibilityFilter
-          )}
-        onTodoClick={id =>
-          store.dispatch({
-            type: 'TOGGLE_TODO',
-            id: id
-          })
+        }
+        onTodoClick={
         }
       />
     );
@@ -262,7 +280,7 @@ class VisibleTodoList extends Component {
 }
 VisibleTodoList.contextTypes = {
   store: React.PropTypes.object
-};
+};*/
 
 let nextTodoId = 0;
 const TodoApp = () => (
