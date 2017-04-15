@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { createStore, combineReducers } from 'redux'
 import { testAddTodo, testToggleTodo } from 'tests'
+import { Provider } from 'react-redux'
 
 const todo = (state, action) => {
   switch (action.type) {
@@ -272,19 +273,19 @@ const TodoApp = () => (
   </div>
 );
 
-class Provider extends Component {
-  getChildContext() {
-    return {
-      store: this.props.store
-    }
-  }
-  render() {
-    return this.props.children
-  }
-}
-Provider.childContextTypes = {
-  store: React.PropTypes.object
-};
+// class Provider extends Component {
+//   getChildContext() {
+//     return {
+//       store: this.props.store
+//     }
+//   }
+//   render() {
+//     return this.props.children
+//   }
+// }
+// Provider.childContextTypes = {
+//   store: React.PropTypes.object
+// };
 
 ReactDOM.render(
   <Provider store={createStore(todoApp)}>
