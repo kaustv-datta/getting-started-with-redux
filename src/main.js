@@ -176,7 +176,8 @@ const TodoList = ({
     </ul>
   );
 
-const AddTodo = (props, { store }) => {
+let nextTodoId = 0;
+let AddTodo = ({ dispatch }) => {
   let input;
 
   return (
@@ -186,7 +187,7 @@ const AddTodo = (props, { store }) => {
       }}
         onKeyUp={(event) => {
           if (event.key === 'Enter') {
-            store.dispatch({
+            dispatch({
               type: 'ADD_TODO',
               text: input.value,
               id: nextTodoId++
@@ -196,7 +197,7 @@ const AddTodo = (props, { store }) => {
         }}
       />
       <button onClick={() => {
-        store.dispatch({
+        dispatch({
           type: 'ADD_TODO',
           text: input.value,
           id: nextTodoId++
@@ -208,9 +209,7 @@ const AddTodo = (props, { store }) => {
     </div>
   );
 }
-AddTodo.contextTypes = {
-  store: React.PropTypes.object
-};
+AddTodo = connect()(AddTodo); // injects dispatch in 2nd arg
 
 const getVisibleTodos = (
   todos,
@@ -226,7 +225,7 @@ const getVisibleTodos = (
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToTodoListProps = (state) => {
   return {
     todos: getVisibleTodos(
       state.todos,
@@ -234,8 +233,7 @@ const mapStateToProps = (state) => {
     )
   };
 }
-
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToTodoListProps = (dispatch) => {
   return {
     onTodoClick: (id) => {
       dispatch({
@@ -245,10 +243,9 @@ const mapDispatchToProps = (dispatch) => {
     }
   };
 }
-
 const VisibleTodoList = connect(
-  mapStateToProps,
-  mapDispatchToProps
+  mapStateToTodoListProps,
+  mapDispatchToTodoListProps
 )(TodoList);
 
 /*class VisibleTodoList extends Component {
@@ -282,7 +279,6 @@ VisibleTodoList.contextTypes = {
   store: React.PropTypes.object
 };*/
 
-let nextTodoId = 0;
 const TodoApp = () => (
   <div>
     <AddTodo />
